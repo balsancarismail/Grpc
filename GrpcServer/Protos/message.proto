@@ -5,7 +5,7 @@ option csharp_namespace = "	GrpcMessageServer";
 package message;
 
 service Message {
-  rpc GetMessage (MessageRequest) returns (MessageResponse) {}
+  rpc GetMessage (MessageRequest) returns (stream MessageResponse) {}
 }
 
 message MessageRequest {

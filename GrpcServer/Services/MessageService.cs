@@ -1,16 +1,17 @@
 ﻿using Grpc.Core;
 
-namespace GrpcMessageServer.Services
+namespace GrpcMessageServer.Services;
+
+public class MessageService(ILogger<MessageService> logger) : Message.MessageBase
 {
-    public class MessageService(ILogger<MessageService> logger) : Message.MessageBase
+    public override async Task GetMessage(MessageRequest request, IServerStreamWriter<MessageResponse> responseStream,
+        ServerCallContext context)
     {
-        public override Task<MessageResponse> GetMessage(MessageRequest request, ServerCallContext context)
+        Console.WriteLine($"Received request for {request.Name}");
+        for (var i = 0; i < 10; i++)
         {
-            Console.WriteLine($"Message: {request.Message} | Name: {request.Name}");
-            return Task.FromResult(new MessageResponse()
-            {
-                Message = "Message received successfully!"
-            });
+            await responseStream.WriteAsync(new MessageResponse { Message = $"Hello {request.Name} {i}" });
+            await Task.Delay(1000);
         }
     }
 }
