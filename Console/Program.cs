@@ -8,13 +8,20 @@ var client = new Message.MessageClient(chanel);
 
 var request = client.GetMessage();
 
-int i = 0;
-while (i++ < 10)
+var task = Task.Run(async () =>
 {
-    await request.RequestStream.WriteAsync(new MessageRequest { Name = "John", Message = "Hello" });
-    await Task.Delay(1000);
-}
-await request.RequestStream.CompleteAsync();
-var resp = request.ResponseAsync.Result;
+    for (int i = 0; i < 10; i++)
+    {
+        await request.RequestStream.WriteAsync(new MessageRequest { Name = "John", Message = $"Message {i}" });
+    }
+    
+});
 
-Console.WriteLine(resp.Message);
+while (await request.ResponseStream.MoveNext(CancellationToken.None))
+{
+    var resp = request.ResponseStream.Current;
+    Console.WriteLine(resp.Message);
+}
+
+await task;
+await request.RequestStream.CompleteAsync();

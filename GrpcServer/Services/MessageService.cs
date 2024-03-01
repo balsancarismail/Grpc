@@ -4,17 +4,24 @@ namespace GrpcMessageServer.Services;
 
 public class MessageService(ILogger<MessageService> logger) : Message.MessageBase
 {
-    public override async Task<MessageResponse> GetMessage(IAsyncStreamReader<MessageRequest> requestStream, ServerCallContext context)
+    public override async Task GetMessage(IAsyncStreamReader<MessageRequest> requestStream, IServerStreamWriter<MessageResponse> responseStream, ServerCallContext context)
     {
 
-        while (await requestStream.MoveNext(context.CancellationToken))
+        var respTask = Task.Run(async () =>
         {
-            logger.LogInformation("Received: " + requestStream.Current.Name + " | Message: " + requestStream.Current.Message);
+            while (await requestStream.MoveNext(context.CancellationToken))
+            {
+                var request = requestStream.Current;
+                Console.WriteLine($"Hello from Server {request.Name}, you said: {request.Message}");
+            }
+        });
+
+        for (int i = 0; i < 10; i++)
+        {
+            await Task.Delay(1000);
+            await responseStream.WriteAsync(new MessageResponse { Message = $"Message {i}" });
         }
 
-        return new MessageResponse
-        {
-            Message = "Hello " + requestStream.Current.Name
-        };
+        await respTask;
     }
 }
