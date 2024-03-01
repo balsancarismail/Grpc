@@ -3,12 +3,13 @@
 using System.Threading.Channels;
 using Grpc.Core;
 using Grpc.Net.Client;
+using GrpcMessageClient;
 using GrpcServer;
 
-Console.WriteLine("Hello, World!");
 
 var chanel = GrpcChannel.ForAddress("http://localhost:5028");
-var client = new Greeter.GreeterClient(chanel);
+var client = new Message.MessageClient(chanel);
 
-var reply = await client.SayHelloAsync(new HelloRequest { Name = "GreeterClient" });
-Console.WriteLine("Greeting: " + reply.Message);
+var response = await client.GetMessageAsync(new MessageRequest { Message = "Sanchez" });
+
+Console.WriteLine(response.Message); 

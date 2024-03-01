@@ -7,8 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Protos\message.proto" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\message.proto" GrpcServices="Client" />
 	</ItemGroup>
 
   <ItemGroup>
